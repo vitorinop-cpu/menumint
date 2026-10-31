@@ -102,6 +102,7 @@ export const localAuth: AuthAdapter = {
       const user = db.users.find((u) => u.email === email);
       if (!user) return false;
       db.resetTokens.push({
+        id: randomUUID(),
         tokenHash: sha256(token),
         userId: user.id,
         expiresAt: new Date(Date.now() + 30 * 60000).toISOString(),

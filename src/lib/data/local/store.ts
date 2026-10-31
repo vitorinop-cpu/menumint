@@ -30,6 +30,7 @@ export interface SessionRecord {
 }
 
 export interface ResetTokenRecord {
+  id: string;
   tokenHash: string;
   userId: string;
   expiresAt: string;
