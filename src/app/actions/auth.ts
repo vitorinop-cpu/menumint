@@ -1,0 +1,85 @@
+"use server";
+
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { forgotSchema, resetSchema, signInSchema, signUpSchema } from "@/lib/validation";
+import { fail, toFailure } from "@/lib/services/result";
+import { getRepo } from "@/lib/data";
+
+async function origin() {
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
+  const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
+  return `${proto}://${host}`;
+}
+
+function safeNext(next: unknown) {
+  return typeof next === "string" && next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
+}
+
+export async function signUpAction(input: unknown) {
+  let needsConfirmation = false;
+  try {
+    const values = signUpSchema.parse(input);
+    const res = await auth().signUp(values);
+    if (!res.ok) return fail(res.error, { fieldErrors: { email: res.error } });
+    needsConfirmation = res.needsConfirmation;
+  } catch (err) {
+    return toFailure(err);
+  }
+  if (needsConfirmation) return { ok: true as const, needsConfirmation: true };
+  redirect("/onboarding");
+}
+
+export async function signInAction(input: unknown, next?: string) {
+  try {
+    const values = signInSchema.parse(input);
+    const res = await auth().signIn(values);
+    if (!res.ok) return fail(res.error);
+  } catch (err) {
+    return toFailure(err);
+  }
+  redirect(safeNext(next));
+}
+
+export async function signOutAction() {
+  await auth().signOut();
+  redirect("/login?signedOut=1");
+}
+
+export async function requestResetAction(input: unknown) {
+  try {
+    const { email } = forgotSchema.parse(input);
+    const res = await auth().requestPasswordReset(email, await origin());
+    if (!res.ok) return fail(res.error);
+    return { ok: true as const, devLink: res.devLink ?? null };
+  } catch (err) {
+    return toFailure(err);
+  }
+}
+
+export async function resetPasswordAction(input: unknown, token: string | null) {
+  try {
+    const { password } = resetSchema.parse(input);
+    const res = await auth().updatePassword({ password, token });
+    if (!res.ok) return fail(res.error);
+  } catch (err) {
+    return toFailure(err);
+  }
+  redirect("/dashboard?passwordUpdated=1");
+}
+
+export async function updateProfileAction(input: unknown) {
+  try {
+    const user = await auth().getUser();
+    if (!user) return fail("Please sign in again.");
+    const name = typeof input === "object" && input && "fullName" in input ? String(input.fullName).trim() : "";
+    if (name.length < 2 || name.length > 80) return fail("Enter a name between 2 and 80 characters.");
+    const repo = await getRepo();
+    await repo.updateProfile(user.id, { fullName: name });
+    return { ok: true as const };
+  } catch (err) {
+    return toFailure(err);
+  }
+}

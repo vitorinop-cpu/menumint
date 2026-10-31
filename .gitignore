@@ -1,0 +1,14 @@
+node_modules
+.next
+out
+build
+.data
+.env
+.env*.local
+next-env.d.ts
+*.tsbuildinfo
+playwright-report
+test-results
+.DS_Store
+.data-test
+.clerk/
