@@ -41,6 +41,25 @@ Copy `.env.example` to `.env.local` and fill it in.
 
 Plan state changes **only** through verified webhooks. Entitlements are always checked on the server (`src/lib/services/*`, server actions); client-side checks only change what the UI shows.
 
+### hCaptcha
+
+MenuMint has two auth paths, so captcha is enabled in two places.
+
+**Clerk mode (production).** Sign-in and sign-up are rendered by Clerk, so the challenge is a Clerk setting, not app code:
+
+1. Clerk Dashboard → **Security** → **Bot protection** → enable **hCaptcha**.
+2. Copy your hCaptcha **site key** and **secret key** from https://dashboard.hcaptcha.com into Clerk's bot-protection settings.
+3. Add `menumint.vertexstudio.studio` to the hCaptcha site's allowed domains.
+
+**Custom forms (Supabase/local mode).** Our own login, sign-up and forgot-password forms render the widget and verify it server-side (`src/lib/hcaptcha.ts`). Set:
+
+```
+NEXT_PUBLIC_HCAPTCHA_SITE_KEY=<your site key>
+HCAPTCHA_SECRET_KEY=<your secret key>
+```
+
+Leaving `HCAPTCHA_SECRET_KEY` blank disables verification, so local development needs no keys. Tokens are checked against `https://api.hcaptcha.com/siteverify` with the client IP, and failed challenges are rejected before the auth provider is called. hCaptcha test keys (`10000000-ffff-ffff-ffff-000000000001` / `0x0000000000000000000000000000000000000000`) work in development.
+
 ## Architecture
 
 ```

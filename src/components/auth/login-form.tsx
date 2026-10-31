@@ -12,20 +12,30 @@ import { GlassButton } from "@/components/glass/glass-button";
 import { Field, GlassInput } from "@/components/glass/glass-input";
 import { GlassNotification } from "@/components/glass/glass-notification";
 import { PasswordInput } from "./password-input";
+import { HCAPTCHA_ENABLED, HCaptchaField } from "./hcaptcha-field";
 
 type Values = z.infer<typeof signInSchema>;
 
 export function LoginForm({ next, demo, notice }: { next?: string; demo?: { email: string; password: string } | null; notice?: string | null }) {
   const [error, setError] = React.useState<string | null>(null);
+  const [captchaToken, setCaptchaToken] = React.useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = React.useState(0);
   const [pending, startTransition] = React.useTransition();
   const form = useForm<Values>({ resolver: zodResolver(signInSchema), defaultValues: { email: "", password: "" } });
   const { errors } = form.formState;
 
   const onSubmit = form.handleSubmit((values) => {
     setError(null);
+    if (HCAPTCHA_ENABLED && !captchaToken) {
+      setError("Please complete the captcha challenge.");
+      return;
+    }
     startTransition(async () => {
-      const res = await signInAction(values, next);
-      if (res && !res.ok) setError(res.error);
+      const res = await signInAction({ ...values, captchaToken: captchaToken ?? undefined }, next);
+      if (res && !res.ok) {
+        setError(res.error);
+        setCaptchaReset((n) => n + 1);
+      }
     });
   });
 
@@ -87,6 +97,7 @@ export function LoginForm({ next, demo, notice }: { next?: string; demo?: { emai
           </p>
         )}
       </div>
+      <HCaptchaField onToken={setCaptchaToken} resetSignal={captchaReset} />
       <GlassButton type="submit" size="lg" className="mt-2 w-full" loading={pending}>
         Log in
       </GlassButton>

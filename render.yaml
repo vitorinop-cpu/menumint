@@ -32,6 +32,12 @@ services:
         value: /onboarding
       - key: DEMO_PLAN_SWITCHER
         value: "false"
+      # Optional: hCaptcha on the custom (non-Clerk) auth forms. Leaving these
+      # blank keeps the forms working without a challenge.
+      - key: NEXT_PUBLIC_HCAPTCHA_SITE_KEY
+        sync: false
+      - key: HCAPTCHA_SECRET_KEY
+        sync: false
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_WEBHOOK_SECRET

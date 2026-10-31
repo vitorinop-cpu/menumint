@@ -47,13 +47,21 @@ export const passwordSchema = z
   .regex(/[A-Za-z]/, "Include a letter")
   .regex(/[0-9]/, "Include a number");
 
+/** hCaptcha token (optional so forms keep working when captcha is disabled). */
+const captchaToken = z.string().trim().max(20_000).optional();
+
 export const signUpSchema = z.object({
   fullName: z.string().trim().min(2, "Tell us your name").max(80),
   email: emailSchema,
   password: passwordSchema,
+  captchaToken,
 });
-export const signInSchema = z.object({ email: emailSchema, password: z.string().min(1, "Enter your password") });
-export const forgotSchema = z.object({ email: emailSchema });
+export const signInSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(1, "Enter your password"),
+  captchaToken,
+});
+export const forgotSchema = z.object({ email: emailSchema, captchaToken });
 export const resetSchema = z
   .object({ password: passwordSchema, confirm: z.string() })
   .refine((v) => v.password === v.confirm, { message: "Passwords don't match", path: ["confirm"] });

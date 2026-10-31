@@ -11,6 +11,7 @@ import { GlassButton } from "@/components/glass/glass-button";
 import { Field, GlassInput } from "@/components/glass/glass-input";
 import { GlassNotification } from "@/components/glass/glass-notification";
 import { PasswordInput } from "./password-input";
+import { HCAPTCHA_ENABLED, HCaptchaField } from "./hcaptcha-field";
 import { cn } from "@/lib/utils";
 
 type Values = z.infer<typeof signUpSchema>;
@@ -24,6 +25,8 @@ const rules = [
 export function SignupForm() {
   const [error, setError] = React.useState<string | null>(null);
   const [confirmSent, setConfirmSent] = React.useState(false);
+  const [captchaToken, setCaptchaToken] = React.useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = React.useState(0);
   const [pending, startTransition] = React.useTransition();
   const form = useForm<Values>({ resolver: zodResolver(signUpSchema), defaultValues: { fullName: "", email: "", password: "" } });
   const { errors } = form.formState;
@@ -31,11 +34,17 @@ export function SignupForm() {
 
   const onSubmit = form.handleSubmit((values) => {
     setError(null);
+    if (HCAPTCHA_ENABLED && !captchaToken) {
+      setError("Please complete the captcha challenge.");
+      return;
+    }
     startTransition(async () => {
-      const res = await signUpAction(values);
+      const res = await signUpAction({ ...values, captchaToken: captchaToken ?? undefined });
       if (!res) return;
-      if (!res.ok) setError(res.error);
-      else if ("needsConfirmation" in res && res.needsConfirmation) setConfirmSent(true);
+      if (!res.ok) {
+        setError(res.error);
+        setCaptchaReset((n) => n + 1);
+      } else if ("needsConfirmation" in res && res.needsConfirmation) setConfirmSent(true);
     });
   });
 
@@ -77,6 +86,7 @@ export function SignupForm() {
           );
         })}
       </ul>
+      <HCaptchaField onToken={setCaptchaToken} resetSignal={captchaReset} />
       <GlassButton type="submit" size="lg" className="mt-2 w-full" loading={pending}>
         Create account
       </GlassButton>

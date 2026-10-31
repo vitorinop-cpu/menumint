@@ -11,6 +11,7 @@ import { GlassButton } from "@/components/glass/glass-button";
 import { Field, GlassInput } from "@/components/glass/glass-input";
 import { GlassNotification } from "@/components/glass/glass-notification";
 import { PasswordInput } from "./password-input";
+import { HCAPTCHA_ENABLED, HCaptchaField } from "./hcaptcha-field";
 
 export function ForgotPasswordForm({ demoMode }: { demoMode: boolean }) {
   const [state, setState] = React.useState<{ sent: boolean; devLink: string | null; error: string | null }>({
@@ -18,17 +19,25 @@ export function ForgotPasswordForm({ demoMode }: { demoMode: boolean }) {
     devLink: null,
     error: null,
   });
+  const [captchaToken, setCaptchaToken] = React.useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = React.useState(0);
   const [pending, startTransition] = React.useTransition();
   const form = useForm<z.infer<typeof forgotSchema>>({ resolver: zodResolver(forgotSchema), defaultValues: { email: "" } });
   const { errors } = form.formState;
 
-  const onSubmit = form.handleSubmit((values) =>
+  const onSubmit = form.handleSubmit((values) => {
+    if (HCAPTCHA_ENABLED && !captchaToken) {
+      setState({ sent: false, devLink: null, error: "Please complete the captcha challenge." });
+      return;
+    }
     startTransition(async () => {
-      const res = await requestResetAction(values);
-      if (!res.ok) setState({ sent: false, devLink: null, error: res.error });
-      else setState({ sent: true, devLink: res.devLink, error: null });
-    }),
-  );
+      const res = await requestResetAction({ ...values, captchaToken: captchaToken ?? undefined });
+      if (!res.ok) {
+        setState({ sent: false, devLink: null, error: res.error });
+        setCaptchaReset((n) => n + 1);
+      } else setState({ sent: true, devLink: res.devLink, error: null });
+    });
+  });
 
   if (state.sent) {
     return (
@@ -60,6 +69,7 @@ export function ForgotPasswordForm({ demoMode }: { demoMode: boolean }) {
       <Field label="Email" htmlFor="email" error={errors.email?.message}>
         <GlassInput id="email" type="email" autoComplete="email" aria-invalid={!!errors.email} aria-describedby={errors.email ? "email-error" : undefined} {...form.register("email")} />
       </Field>
+      <HCaptchaField onToken={setCaptchaToken} resetSignal={captchaReset} />
       <GlassButton type="submit" size="lg" className="w-full" loading={pending}>
         Send reset link
       </GlassButton>

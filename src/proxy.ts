@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse, type NextFetchEvent, type NextMiddleware, type NextRequest } from "next/server";
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { createServerClient } from "@supabase/ssr";
 import { isClerkConfigured } from "@/lib/env";
@@ -17,7 +17,8 @@ interface LimitRule {
 
 // Per-instance request budgets. Clerk's own API calls (sign-in, sign-up) are
 // served by Clerk directly, so brute-force protection there is handled by
-// Clerk's instance settings; these limits cover our own routes.
+// Clerk's instance settings (including its hCaptcha bot protection); these
+// limits cover our own routes.
 const LIMIT_RULES: LimitRule[] = [
   {
     name: "auth-page",
@@ -57,20 +58,23 @@ function enforceLimits(request: NextRequest): NextResponse | null {
   return null;
 }
 
-export default clerkMiddleware(async (authFn, request) => {
-  const { pathname, search } = request.nextUrl;
+/**
+ * Clerk middleware is created lazily: `clerkMiddleware()` throws when Clerk
+ * keys are absent, and demo/Supabase-only deployments must still boot.
+ */
+let clerkHandler: NextMiddleware | null = null;
 
-  const limited = enforceLimits(request);
-  if (limited) return limited;
-
-  if (isClerkConfigured()) {
-    if (isProtectedRoute(request)) {
-      await authFn.protect();
-    }
+function getClerkHandler(): NextMiddleware {
+  clerkHandler ??= clerkMiddleware(async (authFn, request) => {
+    if (isProtectedRoute(request)) await authFn.protect();
     return NextResponse.next();
-  }
+  });
+  return clerkHandler;
+}
 
-  // Supabase / local fallback (original behaviour).
+/** Supabase / local-cookie auth used when Clerk is not configured. */
+async function legacy(request: NextRequest): Promise<NextResponse> {
+  const { pathname, search } = request.nextUrl;
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   let response = NextResponse.next({ request });
@@ -99,7 +103,15 @@ export default clerkMiddleware(async (authFn, request) => {
     return NextResponse.redirect(login);
   }
   return response;
-});
+}
+
+export default async function proxy(request: NextRequest, event: NextFetchEvent) {
+  const limited = enforceLimits(request);
+  if (limited) return limited;
+
+  if (isClerkConfigured()) return getClerkHandler()(request, event);
+  return legacy(request);
+}
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|images/|api/uploads|api/stripe/webhook|favicon.ico|.*\\.(?:jpg|png|svg|webp|ico)$).*)"],

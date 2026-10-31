@@ -7,6 +7,7 @@ import { forgotSchema, resetSchema, signInSchema, signUpSchema } from "@/lib/val
 import { fail, toFailure } from "@/lib/services/result";
 import { getRepo } from "@/lib/data";
 import { clientKey, rateLimit } from "@/lib/rate-limit";
+import { verifyCaptcha } from "@/lib/hcaptcha";
 
 /** Fail fast when an action is hammered from one client. */
 async function throttle(action: string, limit = 10, windowMs = 60_000) {
@@ -14,6 +15,13 @@ async function throttle(action: string, limit = 10, windowMs = 60_000) {
   const result = rateLimit(`${action}:${clientKey(h)}`, limit, windowMs);
   if (!result.ok) return fail(`Too many attempts. Try again in ${result.retryAfter}s.`);
   return null;
+}
+
+/** Verifies an hCaptcha token when a secret is configured. */
+async function captchaCheck(token: string | undefined) {
+  const h = await headers();
+  const result = await verifyCaptcha(token, clientKey(h));
+  return result.ok ? null : fail(result.error);
 }
 
 async function origin() {
@@ -32,7 +40,9 @@ export async function signUpAction(input: unknown) {
   if (limited) return limited;
   let needsConfirmation = false;
   try {
-    const values = signUpSchema.parse(input);
+    const { captchaToken, ...values } = signUpSchema.parse(input);
+    const blocked = await captchaCheck(captchaToken);
+    if (blocked) return blocked;
     const res = await auth().signUp(values);
     if (!res.ok) return fail(res.error, { fieldErrors: { email: res.error } });
     needsConfirmation = res.needsConfirmation;
@@ -47,7 +57,9 @@ export async function signInAction(input: unknown, next?: string) {
   const limited = await throttle("sign-in", 10);
   if (limited) return limited;
   try {
-    const values = signInSchema.parse(input);
+    const { captchaToken, ...values } = signInSchema.parse(input);
+    const blocked = await captchaCheck(captchaToken);
+    if (blocked) return blocked;
     const res = await auth().signIn(values);
     if (!res.ok) return fail(res.error);
   } catch (err) {
@@ -65,7 +77,9 @@ export async function requestResetAction(input: unknown) {
   const limited = await throttle("password-reset-request", 5);
   if (limited) return limited;
   try {
-    const { email } = forgotSchema.parse(input);
+    const { email, captchaToken } = forgotSchema.parse(input);
+    const blocked = await captchaCheck(captchaToken);
+    if (blocked) return blocked;
     const res = await auth().requestPasswordReset(email, await origin());
     if (!res.ok) return fail(res.error);
     return { ok: true as const, devLink: res.devLink ?? null };

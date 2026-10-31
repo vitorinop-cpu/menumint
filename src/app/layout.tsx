@@ -27,18 +27,23 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const content = (
+    <>
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-xl focus:bg-espresso focus:px-4 focus:py-2 focus:text-ivory"
+      >
+        Skip to content
+      </a>
+      <Providers>{children}</Providers>
+    </>
+  );
+
   return (
     <html lang="en" className={fontVariables}>
       <body className="min-h-dvh">
-        <ClerkProvider>
-          <a
-          href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-xl focus:bg-espresso focus:px-4 focus:py-2 focus:text-ivory"
-          >
-          Skip to content
-          </a>
-          <Providers>{children}</Providers>
-        </ClerkProvider>
+        {/* ClerkProvider requires only the publishable key; demo/Supabase-only installs run without it. */}
+        {env.clerkPublishableKey ? <ClerkProvider>{content}</ClerkProvider> : content}
       </body>
     </html>
   );
