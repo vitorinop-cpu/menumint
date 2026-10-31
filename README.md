@@ -29,13 +29,13 @@ Copy `.env.example` to `.env.local` and fill it in.
 ### Supabase
 1. Create a project and apply `supabase/migrations/20261030000000_init.sql` with `supabase db push`, or paste it into the SQL editor. This creates the schema, RLS policies, the RPCs (`save_menu_content`, `publish_menu`, `restaurant_members`, …) and the public `media` storage bucket with its policies.
 2. Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY`. The service role key is server-only and is used only for analytics ingestion, public published content and Stripe webhooks.
-3. In Auth → URL configuration, add `<APP_URL>/auth/callback` as a redirect URL.
+3. In Auth → URL configuration, add `https://menumint.vertexstudio.studio/auth/callback` as a redirect URL (or `<APP_URL>/auth/callback` for other environments).
 4. Optional: create `demo@menumint.app` and run `supabase/seed.sql` to load the demo restaurant.
 
 ### Stripe (use test mode first)
 1. Create three recurring prices (Starter, Pro, Business). The amounts shown in the app ($9 / $19 / $39) are only proposals; set the real ones in Stripe.
 2. Set `STRIPE_SECRET_KEY`, `STRIPE_PRICE_STARTER`, `STRIPE_PRICE_PRO` and `STRIPE_PRICE_BUSINESS`.
-3. Point a webhook at `<APP_URL>/api/stripe/webhook` with these events: `checkout.session.completed`, `customer.subscription.created|updated|deleted`. Set `STRIPE_WEBHOOK_SECRET`.
+3. Point a webhook at `https://menumint.vertexstudio.studio/api/stripe/webhook` with these events: `checkout.session.completed`, `customer.subscription.created|updated|deleted`. Set `STRIPE_WEBHOOK_SECRET`.
    For local testing: `stripe listen --forward-to localhost:3000/api/stripe/webhook`.
 4. Enable the Customer Portal in Stripe so customers can change plans and cancel.
 
@@ -86,7 +86,7 @@ The Playwright suites cover marketing pages and links, sign-up, login, logout, p
 | Area | Status |
 | --- | --- |
 | Demo-mode persistence, auth, uploads | Implemented and tested end-to-end |
-| Supabase schema + RLS | Implemented and checked with an 80-assertion PGlite smoke test (stubbed `auth`/`storage`). **Not yet run against a real Supabase project.** |
-| Supabase repo/auth adapters | Implemented and type-checked. **Not tested against a live project.** |
+| Supabase schema + RLS | Implemented; migrations applied to the live project (`menumint`, us-west-2). |
+| Supabase repo/auth adapters | Implemented and type-checked. Clerk handles auth; Supabase stores data. |
 | Stripe Checkout / Portal / webhooks | Implemented. **Not tested: no Stripe keys were available.** Without keys the UI says so and checkout stays disabled. |
 | Orders, Customers | Not implemented (clearly labelled optional modules) |

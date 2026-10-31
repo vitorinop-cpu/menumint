@@ -9,7 +9,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: NEXT_PUBLIC_APP_URL
-        sync: false
+        value: https://menumint.vertexstudio.studio
       - key: SESSION_SECRET
         generateValue: true
       - key: NEXT_PUBLIC_SUPABASE_URL
