@@ -30,7 +30,7 @@ Copy `.env.example` to `.env.local` and fill it in.
 1. Create a project and apply `supabase/migrations/20261030000000_init.sql` with `supabase db push`, or paste it into the SQL editor. This creates the schema, RLS policies, the RPCs (`save_menu_content`, `publish_menu`, `restaurant_members`, …) and the public `media` storage bucket with its policies.
 2. Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY`. The service role key is server-only and is used only for analytics ingestion, public published content and Stripe webhooks.
 3. In Auth → URL configuration, add `https://menumint.vertexstudio.studio/auth/callback` as a redirect URL (or `<APP_URL>/auth/callback` for other environments).
-4. Optional: create `demo@menumint.app` and run `supabase/seed.sql` to load the demo restaurant.
+4. Optional live demo: run `supabase/seed-demo.sql` in the SQL editor. It creates the public **Saffron & Sage** restaurant (`/m/saffron-sage`) used by the “View live demo” buttons, without needing a Supabase Auth user (Clerk owns auth).
 
 ### Stripe (use test mode first)
 1. Create three recurring prices (Starter, Pro, Business). The amounts shown in the app ($9 / $19 / $39) are only proposals; set the real ones in Stripe.

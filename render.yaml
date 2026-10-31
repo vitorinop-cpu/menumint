@@ -22,6 +22,16 @@ services:
         sync: false
       - key: CLERK_SECRET_KEY
         sync: false
+      - key: NEXT_PUBLIC_CLERK_SIGN_IN_URL
+        value: /login
+      - key: NEXT_PUBLIC_CLERK_SIGN_UP_URL
+        value: /signup
+      - key: NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL
+        value: /onboarding
+      - key: NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL
+        value: /onboarding
+      - key: DEMO_PLAN_SWITCHER
+        value: "false"
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
