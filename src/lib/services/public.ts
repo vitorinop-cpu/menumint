@@ -27,7 +27,7 @@ export const getPublicRestaurant = cache(async (slug: string) => {
   return { restaurant, branding: brandingInput as BrandingInput, published, showBadge: !plan.removeBadge };
 });
 
-export function menuJsonLd(restaurant: Restaurant, menu: PublishedMenu) {
+export function menuJsonLd(restaurant: Restaurant, menu: PublishedMenu, origin: string = env.appUrl) {
   return {
     "@context": "https://schema.org",
     "@type": "Restaurant",
@@ -36,7 +36,7 @@ export function menuJsonLd(restaurant: Restaurant, menu: PublishedMenu) {
     address: restaurant.address || undefined,
     telephone: restaurant.phone || undefined,
     servesCuisine: restaurant.cuisine || undefined,
-    image: restaurant.coverUrl ? new URL(restaurant.coverUrl, env.appUrl).toString() : undefined,
+    image: restaurant.coverUrl ? new URL(restaurant.coverUrl, origin).toString() : undefined,
     hasMenu: {
       "@type": "Menu",
       name: menu.content.name,

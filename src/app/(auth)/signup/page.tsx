@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { AuthCard } from "@/components/auth/auth-card";
+import { AuthLoading } from "@/components/auth/auth-loading";
 import { SignupForm } from "@/components/auth/signup-form";
 import { SignUp } from "@clerk/nextjs";
 import { getCurrentUser } from "@/lib/auth";
@@ -16,7 +18,11 @@ export default async function SignupPage(props: PageProps<"/signup">) {
   const plan = typeof sp.plan === "string" && sp.plan in PLANS && sp.plan !== "free" ? PLANS[sp.plan as keyof typeof PLANS] : null;
 
   if (isClerkConfigured()) {
-    return <SignUp routing="hash" />;
+    return (
+      <Suspense fallback={<AuthLoading />}>
+        <SignUp routing="hash" />
+      </Suspense>
+    );
   }
 
   return (

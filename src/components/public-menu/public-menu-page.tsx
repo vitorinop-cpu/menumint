@@ -1,8 +1,9 @@
 import { MenuView } from "./menu-view";
+import { getRequestOrigin } from "@/lib/origin";
 import { menuJsonLd } from "@/lib/services/public";
 import type { BrandingInput, PublishedMenu, Restaurant } from "@/lib/domain";
 
-export function PublicMenuPage({
+export async function PublicMenuPage({
   restaurant,
   branding,
   published,
@@ -15,7 +16,8 @@ export function PublicMenuPage({
   active: PublishedMenu;
   showBadge: boolean;
 }) {
-  const jsonLd = JSON.stringify(menuJsonLd(restaurant, active)).replace(/</g, "\\u003c");
+  const origin = await getRequestOrigin();
+  const jsonLd = JSON.stringify(menuJsonLd(restaurant, active, origin)).replace(/</g, "\\u003c");
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />

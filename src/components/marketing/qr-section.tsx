@@ -3,6 +3,7 @@ import { Contrast, Download, Link2, Printer, ScanLine, ShieldCheck } from "lucid
 import type { QrStyle } from "@/lib/domain";
 import { buildQrSvg } from "@/lib/qr";
 import { contrastRatio } from "@/lib/utils";
+import { getRequestOrigin } from "@/lib/origin";
 import { Reveal } from "./reveal";
 import { Accent, SectionHeading } from "./section-heading";
 
@@ -46,8 +47,9 @@ const POINTS = [
   },
 ];
 
-export function QrSection() {
-  const url = `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/q/sgtable1`;
+export async function QrSection() {
+  const origin = await getRequestOrigin();
+  const url = `${origin}/q/sgtable1`;
   const svg = buildQrSvg({ text: url, style: QR_STYLE, size: 512 });
   const ratio = contrastRatio(QR_STYLE.fg, QR_STYLE.bg);
 

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { AuthCard } from "@/components/auth/auth-card";
+import { AuthLoading } from "@/components/auth/auth-loading";
 import { LoginForm } from "@/components/auth/login-form";
 import { SignIn } from "@clerk/nextjs";
 import { getCurrentUser } from "@/lib/auth";
@@ -18,7 +20,11 @@ export default async function LoginPage(props: PageProps<"/login">) {
   const demo = isDemoMode() ? { email: "demo@menumint.app", password: "mint-demo-2026" } : null;
 
   if (isClerkConfigured()) {
-    return <SignIn routing="hash" />;
+    return (
+      <Suspense fallback={<AuthLoading />}>
+        <SignIn routing="hash" />
+      </Suspense>
+    );
   }
 
   return (

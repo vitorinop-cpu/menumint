@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSystemRepo } from "@/lib/data";
+import { originFromHeaders } from "@/lib/origin";
 import { deviceFromUserAgent, isBot } from "@/lib/services/analytics";
 
 export const runtime = "nodejs";
@@ -11,7 +12,8 @@ export const dynamic = "force-dynamic";
  */
 export async function GET(req: Request, ctx: RouteContext<"/q/[code]">) {
   const { code } = await ctx.params;
-  const url = new URL(req.url);
+  const origin = originFromHeaders(req.headers);
+  const url = new URL("/", origin);
   if (!/^[a-z0-9]{6,16}$/.test(code)) return NextResponse.redirect(new URL("/menu-unavailable", url), 302);
 
   const repo = getSystemRepo();
@@ -25,7 +27,7 @@ export async function GET(req: Request, ctx: RouteContext<"/q/[code]">) {
   const destination = target ? `/m/${restaurant.slug}/${target.menu.slug}` : `/m/${restaurant.slug}`;
 
   const ua = req.headers.get("user-agent");
-  const preview = url.searchParams.get("preview") === "1";
+  const preview = new URL(req.url).searchParams.get("preview") === "1";
   if (!preview && !isBot(ua) && req.headers.get("dnt") !== "1" && req.headers.get("sec-gpc") !== "1") {
     try {
       await repo.recordEvent({

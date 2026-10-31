@@ -6,6 +6,15 @@ import { auth } from "@/lib/auth";
 import { forgotSchema, resetSchema, signInSchema, signUpSchema } from "@/lib/validation";
 import { fail, toFailure } from "@/lib/services/result";
 import { getRepo } from "@/lib/data";
+import { clientKey, rateLimit } from "@/lib/rate-limit";
+
+/** Fail fast when an action is hammered from one client. */
+async function throttle(action: string, limit = 10, windowMs = 60_000) {
+  const h = await headers();
+  const result = rateLimit(`${action}:${clientKey(h)}`, limit, windowMs);
+  if (!result.ok) return fail(`Too many attempts. Try again in ${result.retryAfter}s.`);
+  return null;
+}
 
 async function origin() {
   const h = await headers();
@@ -19,6 +28,8 @@ function safeNext(next: unknown) {
 }
 
 export async function signUpAction(input: unknown) {
+  const limited = await throttle("sign-up", 5);
+  if (limited) return limited;
   let needsConfirmation = false;
   try {
     const values = signUpSchema.parse(input);
@@ -33,6 +44,8 @@ export async function signUpAction(input: unknown) {
 }
 
 export async function signInAction(input: unknown, next?: string) {
+  const limited = await throttle("sign-in", 10);
+  if (limited) return limited;
   try {
     const values = signInSchema.parse(input);
     const res = await auth().signIn(values);
@@ -49,6 +62,8 @@ export async function signOutAction() {
 }
 
 export async function requestResetAction(input: unknown) {
+  const limited = await throttle("password-reset-request", 5);
+  if (limited) return limited;
   try {
     const { email } = forgotSchema.parse(input);
     const res = await auth().requestPasswordReset(email, await origin());
@@ -60,6 +75,8 @@ export async function requestResetAction(input: unknown) {
 }
 
 export async function resetPasswordAction(input: unknown, token: string | null) {
+  const limited = await throttle("password-reset", 10);
+  if (limited) return limited;
   try {
     const { password } = resetSchema.parse(input);
     const res = await auth().updatePassword({ password, token });
