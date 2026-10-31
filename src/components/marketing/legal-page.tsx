@@ -5,12 +5,14 @@ export function LegalPage({
   title,
   updated,
   intro,
+  contents,
   children,
 }: {
   eyebrow: string;
   title: string;
   updated: string;
   intro: React.ReactNode;
+  contents?: { href: string; label: string }[];
   children: React.ReactNode;
 }) {
   return (
@@ -24,10 +26,24 @@ export function LegalPage({
         <h1 className="mt-4 font-display text-[clamp(2.6rem,6vw,4.25rem)] font-medium leading-[1] tracking-[-0.04em] text-espresso">{title}</h1>
         <p className="mt-4 text-[14px] text-espresso-500">Last updated {updated}</p>
         <div className="mt-8 text-[18px] leading-relaxed text-espresso-600">{intro}</div>
+        {contents && contents.length > 0 && (
+          <nav aria-label="On this page" className="mt-9 rounded-2xl border border-espresso/[0.09] bg-white/45 p-5 shadow-[var(--shadow-soft)]">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-espresso-500">On this page</p>
+            <ol className="mt-3 grid gap-x-5 gap-y-2 sm:grid-cols-2">
+              {contents.map((item) => (
+                <li key={item.href}>
+                  <a href={item.href} className="text-[14px] text-terracotta-ink underline-offset-4 hover:underline">
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )}
         <div
           className={[
             "mt-12 space-y-10 text-[16px] leading-[1.75] text-espresso-600",
-            "[&_h2]:font-display [&_h2]:text-[26px] [&_h2]:font-medium [&_h2]:tracking-[-0.025em] [&_h2]:text-espresso",
+            "[&_h2]:scroll-mt-28 [&_h2]:font-display [&_h2]:text-[26px] [&_h2]:font-medium [&_h2]:tracking-[-0.025em] [&_h2]:text-espresso",
             "[&_h3]:mt-6 [&_h3]:text-[16px] [&_h3]:font-semibold [&_h3]:text-espresso",
             "[&_p]:mt-3 [&_ul]:mt-3 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5 [&_li]:marker:text-terracotta",
             "[&_a]:font-medium [&_a]:text-terracotta-ink [&_a]:underline [&_a]:underline-offset-4",

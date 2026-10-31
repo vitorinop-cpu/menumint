@@ -4,7 +4,7 @@ import { LegalPage } from "@/components/marketing/legal-page";
 
 export const metadata: Metadata = {
   title: "Terms of service",
-  description: "The terms that apply when you use MenuMint to build and share digital menus.",
+  description: "Terms for using MenuMint to create, publish and share digital restaurant menus.",
   alternates: { canonical: "/terms" },
 };
 
@@ -13,94 +13,82 @@ export default function TermsPage() {
     <LegalPage
       eyebrow="Legal"
       title="Terms of service"
-      updated="October 30, 2026"
-      intro={
-        <p>
-          These terms apply when you create a MenuMint account and use it to build, publish and share digital menus. We&apos;ve tried
-          to keep them short and readable. By creating an account you agree to them.
-        </p>
-      }
+      updated="October 31, 2026"
+      contents={[
+        { href: "#service", label: "The service" },
+        { href: "#accounts", label: "Accounts and teams" },
+        { href: "#content", label: "Your content" },
+        { href: "#acceptable-use", label: "Acceptable use" },
+        { href: "#billing", label: "Plans and billing" },
+        { href: "#availability", label: "Availability" },
+        { href: "#liability", label: "Liability" },
+        { href: "#ending", label: "Ending service" },
+      ]}
+      intro={<p>These terms apply when you create a MenuMint account or use the dashboard to build, publish and share digital menus. By creating an account, inviting a team member or using the service, you agree to these terms and our <Link href="/privacy">privacy policy</Link>.</p>}
     >
-      <section>
-        <h2>Your account</h2>
+      <section id="service">
+        <h2>The service</h2>
+        <p>MenuMint provides tools for restaurants to create and publish digital menus, brand them, generate QR codes and review menu analytics. The service is intended for business use by restaurants, cafés, bars and their authorised teams. You must be old enough to form a binding agreement where you live and have authority to accept these terms for the restaurant or organisation you represent.</p>
+      </section>
+
+      <section id="accounts">
+        <h2>Accounts and teams</h2>
         <ul>
-          <li>You must provide accurate information and be authorised to act for the restaurant you set up.</li>
-          <li>Keep your login details safe. You&apos;re responsible for activity under your account and your team&apos;s accounts.</li>
-          <li>Let us know promptly if you believe your account has been accessed without permission.</li>
+          <li>Provide accurate, current account information and keep it updated.</li>
+          <li>Keep login credentials secure. You are responsible for activity under your account and for access you grant to team members.</li>
+          <li>Assign only appropriate roles to team members and remove access when it is no longer needed.</li>
+          <li>Notify us promptly through the dashboard if you believe an account has been accessed without authorisation.</li>
         </ul>
       </section>
 
-      <section>
-        <h2>Your content</h2>
-        <p>
-          You own the menus, photos, logos and other content you add. You give MenuMint permission to store, process and display that
-          content only as needed to run the service — for example, to show your published menu to guests who scan your QR code.
-        </p>
-        <p>
-          <strong>You are responsible for your menu&apos;s accuracy</strong>, including prices, availability, and dietary and allergen
-          information. MenuMint provides tools to display this information; it doesn&apos;t verify it. You must have the rights to
-          any images you upload.
-        </p>
+      <section id="content">
+        <h2>Your content and restaurant responsibilities</h2>
+        <p>You retain ownership of menus, logos, images and other content you submit. You grant MenuMint a non-exclusive, worldwide, royalty-free licence to host, reproduce, process and display that content only as needed to operate, improve and secure the service, including displaying a published menu to a guest who opens its QR code.</p>
+        <p><strong>You are responsible for menu accuracy</strong>, including prices, availability, ingredients, dietary and allergen information, legally required notices and business contact information. MenuMint provides presentation tools; it does not verify menu content or give food-safety, legal, regulatory or nutritional advice. You must have all rights and permissions necessary for content you upload.</p>
       </section>
 
-      <section>
+      <section id="acceptable-use">
         <h2>Acceptable use</h2>
-        <p>Please don&apos;t use MenuMint to:</p>
+        <p>You may not use MenuMint to:</p>
         <ul>
-          <li>publish unlawful, misleading, hateful or infringing content;</li>
-          <li>distribute malware, phishing links or spam, including through QR codes;</li>
-          <li>attempt to break, overload or gain unauthorised access to the service or other accounts.</li>
+          <li>publish unlawful, deceptive, harmful, discriminatory, infringing or otherwise objectionable content;</li>
+          <li>use QR codes, links or menu content to distribute malware, phishing, spam or fraudulent material;</li>
+          <li>interfere with, probe, overload, scrape or gain unauthorised access to the service, accounts or data;</li>
+          <li>circumvent plan limits, security controls, payment obligations or usage limits; or</li>
+          <li>use the service in a way that violates applicable law or another person&apos;s rights.</li>
         </ul>
-        <p>We may remove content or suspend accounts that break these rules.</p>
+        <p>We may remove content, limit access, suspend or terminate accounts that violate these terms or create a security, legal or reputational risk.</p>
       </section>
 
-      <section>
-        <h2>Plans and billing</h2>
+      <section id="billing">
+        <h2>Plans, billing and cancellation</h2>
         <ul>
-          <li>The Free plan costs nothing and has no time limit. Free menus show a small “Menu by MenuMint” badge.</li>
-          <li>
-            Paid plans are billed monthly in advance through Stripe. Prices shown on our website are proposed and may change; we&apos;ll
-            give existing subscribers notice before any price change applies to them.
-          </li>
-          <li>
-            You can cancel at any time. Your paid features stay active until the end of the current billing period, after which your
-            account moves to the Free plan. Except where required by law, payments for a period that has started aren&apos;t refunded.
-          </li>
+          <li>The Free plan has no recurring charge and may include product limits or a MenuMint badge on public menus.</li>
+          <li>Paid subscriptions are billed in advance on a recurring monthly basis through Stripe. Applicable prices and plan features are shown when you subscribe.</li>
+          <li>You authorise Stripe to charge the applicable subscription fees and taxes. Keep billing details current.</li>
+          <li>You may cancel a paid plan at any time. Paid features remain available until the end of the current paid period, after which the account moves to the available free plan or its content may be subject to the free-plan limits.</li>
+          <li>Except where required by law, fees for a billing period already started are non-refundable. We will provide reasonable notice before a price change applies to an existing paid subscription.</li>
         </ul>
       </section>
 
-      <section>
+      <section id="availability">
         <h2>Availability and changes</h2>
-        <p>
-          We work hard to keep MenuMint fast and reliable, but the service is provided &ldquo;as is&rdquo; and we can&apos;t promise it
-          will always be uninterrupted or error-free. We may improve, change or retire features over time; if a change materially
-          reduces what a paid plan includes, we&apos;ll tell you in advance.
-        </p>
+        <p>We aim to keep MenuMint reliable and secure, but it is provided on an &ldquo;as is&rdquo; and &ldquo;as available&rdquo; basis. We do not guarantee uninterrupted, error-free or perfectly secure operation. We may modify, add or retire features to maintain, improve or comply with law. If a change materially reduces a paid plan&apos;s core functionality, we will provide advance notice where reasonably practicable.</p>
       </section>
 
-      <section>
-        <h2>Liability</h2>
-        <p>
-          To the extent permitted by law, MenuMint isn&apos;t liable for indirect or consequential losses, such as lost profits or lost
-          data, and our total liability for any claim is limited to the amount you paid us in the 12 months before it arose. Nothing in
-          these terms limits liability that can&apos;t be limited by law.
-        </p>
+      <section id="liability">
+        <h2>Disclaimers and liability</h2>
+        <p>To the maximum extent permitted by law, MenuMint disclaims implied warranties, including merchantability, fitness for a particular purpose and non-infringement. MenuMint is not liable for indirect, incidental, special, consequential or punitive losses, including lost profits, revenue, goodwill or data. Our total liability for a claim arising from the service is limited to the amount you paid to MenuMint for the service in the 12 months before the event giving rise to the claim. Nothing in these terms excludes liability that cannot be excluded under applicable law.</p>
       </section>
 
-      <section>
-        <h2>Ending your account</h2>
-        <p>
-          You can stop using MenuMint and delete your account at any time. We may suspend or close accounts that seriously or
-          repeatedly break these terms. When an account is closed, its published menus go offline and QR codes stop resolving.
-        </p>
+      <section id="ending">
+        <h2>Ending service</h2>
+        <p>You may stop using MenuMint and delete your account at any time. We may suspend or terminate access for a material or repeated breach of these terms, non-payment, security risk, legal requirement, or prolonged inactivity on a free account. On termination, published menus may go offline and QR codes may stop resolving. Provisions that by their nature should survive termination, including payment obligations, disclaimers, liability limits and content rights needed to resolve a dispute, will survive.</p>
       </section>
 
-      <section>
-        <h2>Privacy and updates to these terms</h2>
-        <p>
-          Our <Link href="/privacy">privacy policy</Link> explains how we handle data for owners and for guests. If we update these
-          terms in a meaningful way, we&apos;ll change the date above and notify account holders before the changes take effect.
-        </p>
+      <section id="terms-changes">
+        <h2>Changes and interpretation</h2>
+        <p>We may revise these terms as the service or law changes. The updated terms will appear on this page with a new effective date. For material changes affecting existing account holders, we will provide advance notice where reasonably possible. If any provision is unenforceable, the remaining provisions remain in effect. These terms do not create rights for third parties. Questions about an account or these terms can be submitted using the support channel in the MenuMint dashboard.</p>
       </section>
     </LegalPage>
   );
