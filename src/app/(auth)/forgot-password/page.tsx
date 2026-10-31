@@ -6,6 +6,8 @@ import { ForgotPasswordForm } from "@/components/auth/reset-forms";
 import { isClerkConfigured, isDemoMode } from "@/lib/env";
 
 export const metadata: Metadata = { title: "Reset your password" };
+// Evaluated per request so Clerk-less deployments keep the custom form.
+export const dynamic = "force-dynamic";
 
 export default function ForgotPasswordPage() {
   // Clerk owns the reset flow: its <SignIn> component renders the "forgot
